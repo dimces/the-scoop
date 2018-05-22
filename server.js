@@ -299,7 +299,7 @@ function updateComment(url, request) {
   } else if (!savedComment) {
     response.status = 404;
   } else {
-    request.body.comment.body = database.comments[id].body;
+    savedComment.body = requestComment.body || savedComment.body;
     response.body = {comment: requestComment};
     response.status = 200;
   }
@@ -318,9 +318,11 @@ function deleteComment(url, request) {
   const response = {};
 
   if (savedComment) {
-    
-    database.users[savedComment.username].commentIds.splice(savedComment, 1);
-    database.articles[savedComment.id].commentIds.splice(savedComment, 1);
+    const userCommentIds = database.users[savedComment.username].commentIds;
+    userCommentIds.splice(userCommentIds.indexOf(id), 1);
+
+    const userArticleIds = database.articles[savedComment.articleId].commentIds;
+    userArticleIds.splice(userArticleIds.indexOf(id), 1);
     database.comments[id] = null;
     response.status = 204;
   } else {
